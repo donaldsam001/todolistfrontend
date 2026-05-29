@@ -1,0 +1,31 @@
+<h1>Danh sách công việc</h1>
+<div>
+  <button [routerLink]="['/new']">Thêm công việc mới</button>
+</div>
+<br>
+<div>
+  <table border="1">
+    <tr>
+      <td>STT</td>
+      <td>Tên công việc</td>
+      <td>Trạng thái</td>
+      <td>Hành động</td>
+    </tr>
+    <tr *ngFor="let task of tasks">
+      <td>{{task.id}}</td>
+      <td><a [routerLink]="['/detail', task.id]">{{task.title}}</a></td>
+      <td>
+        <span *ngIf="task.status == 0">Chưa làm</span>
+        <span *ngIf="task.status == 1">Đang làm</span>
+        <span *ngIf="task.status == 2">Hoàn thành</span>
+      </td>
+      <td>
+        <button>
+          <span *ngIf="task.status == 0">Thực hiện</span>
+          <span *ngIf="task.status == 1">Kết thúc</span>
+          <span *ngIf="task.status == 2">Xóa</span>
+        </button>
+      </td>
+    </tr>
+  </table>
+</div>

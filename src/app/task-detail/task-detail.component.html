@@ -1,0 +1,13 @@
+<h1>Chi tiết công việc</h1>
+<div><button [routerLink]="['/list']">Back</button></div>
+<br>
+<div><b>{{t.title}}</b></div>
+<div>Nội dung</div>
+<p>{{t.content}}</p>
+<div>
+  <button>Xóa</button>
+  <button *ngIf="t.status != 2">
+    <span *ngIf="t.status == 0">Thực hiện</span>
+    <span *ngIf="t.status == 1">Kết thúc</span>
+  </button>
+</div>
