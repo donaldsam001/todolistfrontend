@@ -8,7 +8,7 @@ import { TASKS } from '../mock-tasks';
   standalone: true,
   imports: [CommonModule, RouterLink], // Import CommonModule để dùng *ngFor, *ngIf và RouterLink
   templateUrl: './task-list.component.html',
-  styleUrls: ['./task-list.component.css']
+  // styleUrls: ['./task-list.component.css']
 })
 export class TaskListComponent implements OnInit {
   tasks = TASKS;
