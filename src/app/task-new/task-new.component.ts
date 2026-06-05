@@ -30,7 +30,7 @@ export class TaskNewComponent implements OnInit {
   onSubmit() {
     // Khởi tạo thực thể Object gửi lên server theo đúng cấu trúc Interface Task
     let task = {
-      id: 0,
+      // id: 0,
       title: this.newForm.value.title ?? "",
       content: this.newForm.value.content ?? "",
       status: 0 // Mặc định trạng thái ban đầu là Chưa làm

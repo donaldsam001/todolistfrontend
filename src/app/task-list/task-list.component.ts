@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { DataService, Task } from '../data'; // Import service mới thay thế mock dữ liệu
+import { Component, OnInit, signal } from '@angular/core'; // 1. Import signal ở đây
+import { DataService, Task } from '../data'; 
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -8,34 +8,34 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './task-list.component.html',
-  // styleUrls: ['./task-list.component.css']
 })
 export class TaskListComponent implements OnInit {
-  tasks: Array<Task> = [];
+  
+  // 2. Khởi tạo một signal chứa danh sách các Task, mặc định là mảng rỗng
+  tasks = signal<Array<Task>>([]);
 
   constructor(private dataService: DataService) { }
 
   ngOnInit() {
-    this.displayListTask(); // Gọi nạp dữ liệu khi component khởi tạo
+    this.displayListTask(); 
   }
 
   displayListTask() {
     this.dataService.getTaskList().subscribe((data: Array<Task>) => {
-      this.tasks = data;
+      // 3. Sử dụng phương thức .set() để cập nhật giá trị cho signal
+      this.tasks.set(data);
     });
   }
 
   actionTask(task: any) {
     let code = 0;
     
-    // Nếu trạng thái là Hoàn thành (2) -> Tiến hành XÓA công việc khỏi cơ sở dữ liệu
     if (task.status == 2) {
       console.log("delete id:", task.id);
       this.dataService.deleteTask(task.id).subscribe(() => {
-        this.displayListTask(); // Nạp lại danh sách mới sau khi xóa thành công
+        this.displayListTask(); 
       });
     } else {
-      // Chuyển đổi trạng thái tuần tự: 0 (Chưa làm) -> 1 (Đang làm) -> 2 (Hoàn thành)
       if (task.status == 0) {
         task.status = 1;
       } else if (task.status == 1) {
@@ -44,7 +44,7 @@ export class TaskListComponent implements OnInit {
 
       this.dataService.updateTask(task).subscribe({
         next: () => {
-          this.displayListTask(); // Cập nhật lại giao diện hiển thị danh sách
+          this.displayListTask(); 
         },
         error: (error) => {
           code = error.status;
