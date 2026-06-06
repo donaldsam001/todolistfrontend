@@ -1,17 +1,57 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal } from '@angular/core'; // 1. Import signal ở đây
+import { DataService, Task } from '../data'; 
 import { RouterLink } from '@angular/router';
-import { TASKS } from '../mock-tasks';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, RouterLink], // Import CommonModule để dùng *ngFor, *ngIf và RouterLink
+  imports: [CommonModule, RouterLink],
   templateUrl: './task-list.component.html',
-  // styleUrls: ['./task-list.component.css']
 })
 export class TaskListComponent implements OnInit {
-  tasks = TASKS;
-  constructor() {}
-  ngOnInit() {}
+  
+  tasks = signal<Array<Task>>([]);
+
+  constructor(private dataService: DataService) { }
+
+  ngOnInit() {
+    this.displayListTask(); 
+  }
+
+  displayListTask() {
+    this.dataService.getTaskList().subscribe((data: Array<Task>) => {
+      this.tasks.set(data);
+    });
+  }
+
+  actionTask(task: any) {
+    let code = 0;
+    
+    if (task.status == 2) {
+      console.log("delete id:", task.id);
+      this.dataService.deleteTask(task.id).subscribe(() => {
+        this.displayListTask(); 
+      });
+    } else {
+      if (task.status == 0) {
+        task.status = 1;
+      } else if (task.status == 1) {
+        task.status = 2;
+      }
+
+      this.dataService.updateTask(task).subscribe({
+        next: () => {
+          this.displayListTask(); 
+        },
+        error: (error) => {
+          code = error.status;
+          console.log("status code: " + code);
+          if (code == 303) {
+            this.displayListTask();
+          }
+        }
+      });
+    }
+  }
 }
