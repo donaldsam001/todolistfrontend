@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DataService, Task } from '../data';
 import { CommonModule } from '@angular/common';
@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 })
 export class TaskDetailComponent implements OnInit {
   id = 0;
-  t: any; // Biến giữ thông tin chi tiết của công việc đang được chọn
+  t = signal<Task | null>(null);
   message: string = "";
 
   constructor(
@@ -22,37 +22,54 @@ export class TaskDetailComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Trích xuất ID từ tham số định tuyến của URL
     this.id = Number(this.route.snapshot.paramMap.get('id'));
     
-    // Đăng ký lấy danh sách dữ liệu thực tế từ API server để thực hiện lọc tìm kiếm
-    this.dataService.getTaskList().subscribe((data: Array<Task>) => {
-      this.t = data.find(obj => obj.id === this.id);
+    this.displayTaskDetail();
+  }
+
+  displayTaskDetail() {
+    this.dataService.getTaskList().subscribe((data:Array <Task>) =>{
+      const foundTask = data.find(obj => obj.id === this.id);
+      if (foundTask) {
+        this.t.set(foundTask) ;
+      } else {
+        console.error( `Không tìm thấy công việc với ID:  + ${this.id}`);
+      }
     });
   }
 
   deleteTask() {
-    this.dataService.deleteTask(this.t.id).subscribe(() => {
-      this.router.navigate(['/list']); // Chuyển hướng người dùng về trang danh sách sau khi xóa
+    this.dataService.deleteTask(this.t()!.id).subscribe(() => {
+      this.router.navigate(['/list']); 
     });
   }
 
   actionTask() {
     let code = 0;
-    if (this.t.status == 0) this.t.status = 1;
-    else if (this.t.status == 1) this.t.status = 2;
+    const currentTask = this.t(); 
 
-    this.dataService.updateTask(this.t).subscribe({
-      next: () => {
-        this.message = "Cập nhật công việc thành công";
-      },
-      error: (error) => {
-        code = error.status;
-        console.log("status code: " + code);
-        if (code == 303) {
-          this.message = "Cập nhật công việc thành công";
-        }
+    if (currentTask) {
+      if (currentTask.status == 0){
+        currentTask.status = 1;
+      } else if (currentTask.status == 1) {
+        currentTask.status = 2;
       }
-    });
+    
+
+      this.dataService.updateTask(currentTask).subscribe({
+        next: () => {
+          this.message = "Cập nhật công việc thành công";
+          this.t.set({...currentTask});
+        },
+        error: (error) => {
+          code = error.status;
+          console.log("status code: " + code);
+          if (code == 303) {
+            this.message = "Cập nhật công việc thành công";
+            this.t.set({...currentTask});
+          }
+        }
+      });
+    }
   }
 }

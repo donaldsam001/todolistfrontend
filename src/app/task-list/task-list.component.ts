@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
 })
 export class TaskListComponent implements OnInit {
   
-  // 2. Khởi tạo một signal chứa danh sách các Task, mặc định là mảng rỗng
   tasks = signal<Array<Task>>([]);
 
   constructor(private dataService: DataService) { }
@@ -22,7 +21,6 @@ export class TaskListComponent implements OnInit {
 
   displayListTask() {
     this.dataService.getTaskList().subscribe((data: Array<Task>) => {
-      // 3. Sử dụng phương thức .set() để cập nhật giá trị cho signal
       this.tasks.set(data);
     });
   }
